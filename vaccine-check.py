@@ -14,8 +14,13 @@ def handler(pincodes, date):
     message = ""
 
     for code in pincodes:
+        headers = {
+            "Accept": "application/json",
+            "Referer": "https://apisetu.gov.in/public/marketplace/api/cowin/cowin-public-v2",
+            "Connection": "keep-alive"
+        }
         # Get the details of vaccine availablity from the API
-        res = requests.get(api_endpoint.format(code, date))
+        res = requests.get(api_endpoint.format(code, date), headers=headers)
 
         print("API response for: " + str(code) + " was: " + json.dumps(res.json()))
     
@@ -29,13 +34,14 @@ def handler(pincodes, date):
                 center_detail += str(count) + ". Name: {}, Fee type: {}".format(center["name"], center["fee_type"])
 
                 for session in center["sessions"]:
-                    center_detail += "\n Date: {} Availability: {}".format(session["date"], session["available_capacity"])
+                    center_detail += "\n\t Date: {} Availability: {}".format(session["date"], session["available_capacity"])
 
             message = "The vaccine is now available for the week following: {} for PIN: {}\n{} \n\n".format(date, code, center_detail)
 
             count += 1
 
     if center_detail:
+        print(message)
         top = Tk()  
         top.geometry("100x100")  
         messagebox.showinfo("Available",message)    
