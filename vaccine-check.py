@@ -4,9 +4,6 @@ import time
 from tkinter import *  
 from tkinter import messagebox  
 
-#def prepare(api_response):
-#	for code in 
-
 def handler(pincodes, date):
     api_endpoint = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode={}&date={}"
     
@@ -18,12 +15,12 @@ def handler(pincodes, date):
             "Host": "cdn-api.co-vin.in",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:88.0) Gecko/20100101 Firefox/88.0",
-			"Accept-Language": "en-US,en;q=0.5",
-			"Accept-Encoding": "gzip, deflate, br",
-			"Connection": "keep-alive",
-			"Upgrade-Insecure-Requests": "1",
-			"Pragma": "no-cache",
-			"Cache-Control": "no-cache"
+            "Accept-Language": "en-US,en;q=0.5",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Pragma": "no-cache",
+            "Cache-Control": "no-cache"
         }
         
         # Get the details of vaccine availablity from the API
