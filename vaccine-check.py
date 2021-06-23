@@ -3,7 +3,7 @@ import requests
 import time
 from tkinter import *  
 from tkinter import messagebox  
-
+	
 def handler(pincodes, date):
     api_endpoint = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode={}&date={}"
     
@@ -20,7 +20,7 @@ def handler(pincodes, date):
             "Connection": "keep-alive",
             "Upgrade-Insecure-Requests": "1",
             "Pragma": "no-cache",
-            "Cache-Control": "no-cache"
+            "Cache-Control": "cf-no-cache"
         }
         
         # Get the details of vaccine availablity from the API
@@ -28,7 +28,8 @@ def handler(pincodes, date):
         #res = requests.get(api_endpoint.format(code, date))
 
         try: 
-            print("API response for: " + str(code) + " was: " + json.dumps(res.json()))
+            print("API response for: " + str(code) + " was: {}".format(res.json()))
+            pass
         except Exception as e:
             print("Response: " + str(res))
             print("Error: " + str(e))
@@ -40,20 +41,28 @@ def handler(pincodes, date):
         if res.status_code != 200:
             print("Error response: " + str(res.reason))
             return {"Response": res.status_code}
-    
+        flag = 0
         if res.json()["centers"]:
             count = 1
             for center in res.json()["centers"]:
-                center_detail += str(count) + ". Name: {}, Fee type: {}".format(center["name"], center["fee_type"])
+                if center["center_id"] in  [668001, 702005] :
+                    print("Found center {}:\n".format(center["name"]))
+                    
+                    center_detail += str(count) + ". Name: {}, Fee type: {}".format(center["name"], center["fee_type"])
+            
+                    for session in center["sessions"]:
+                        if session["available_capacity"] > 0 and session["min_age_limit"] == 18 and session["date"] =="23-06-2021": 
+                            flag = 1
+                            center_detail += "\n Date: {} Availability: {}".format(session["date"], session["available_capacity"])
+                        else:
+                            print("\t{}+ No vaccine yet! {}\n".format(session["min_age_limit"], session["available_capacity"]))
 
-                for session in center["sessions"]:
-                    center_detail += "\n\t Date: {} Availability: {}".format(session["date"], session["available_capacity"])
-
-            message = "The vaccine is now available for the week following: {} for PIN: {}\n{} \n\n".format(date, code, center_detail)
+            if flag == 1:       
+                message = "The vaccine is now available for the week following: {} for PIN: {}\n{} \n\n".format(date, code, center_detail)
 
             count += 1
 
-    if center_detail:
+    if message:
         print(message)
         top = Tk()  
         top.geometry("100x100")  
@@ -62,11 +71,11 @@ def handler(pincodes, date):
 
 
 # Set you pincode and date here
-pincodes = ["442701", "442402"]
-date = "09-05-2021"
+pincodes = ["442701"]
+date = "24-06-2021"
 
 # Time interval for checks in seconds
-interval = 300
+interval = 3
 
 while True:
 	handler(pincodes, date)
