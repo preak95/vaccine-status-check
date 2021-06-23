@@ -4,6 +4,13 @@ import time
 from tkinter import *  
 from tkinter import messagebox  
 	
+centers = {
+    41255 : "Ballarpur RH",
+    702005 : "2 Natyagruh Ballarpur 45 Above",
+    41256 : "Ballarpur UPHC",
+    668001: "Natyagrah Ballarpur (18-44)"
+}
+
 def handler(pincodes, date):
     api_endpoint = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode={}&date={}"
     
@@ -28,7 +35,7 @@ def handler(pincodes, date):
         #res = requests.get(api_endpoint.format(code, date))
 
         try: 
-            print("API response for: " + str(code) + " was: {}".format(res.json()))
+            #print("API response for: " + str(code) + " was: {}".format(res.json()))
             pass
         except Exception as e:
             print("Response: " + str(res))
@@ -45,7 +52,7 @@ def handler(pincodes, date):
         if res.json()["centers"]:
             count = 1
             for center in res.json()["centers"]:
-                if center["center_id"] in  [668001, 702005] :
+                if center["center_id"] in  centers :
                     print("Found center {}:\n".format(center["name"]))
                     
                     center_detail += str(count) + ". Name: {}, Fee type: {}".format(center["name"], center["fee_type"])
@@ -55,7 +62,9 @@ def handler(pincodes, date):
                             flag = 1
                             center_detail += "\n Date: {} Availability: {}".format(session["date"], session["available_capacity"])
                         else:
-                            print("\t{}+ No vaccine yet! {}\n".format(session["min_age_limit"], session["available_capacity"]))
+                            print("\t{} - {}+ No vaccine yet! {}\n".format(center["name"],session["min_age_limit"], session["available_capacity"]))
+        
+            print("-----------------------------------------")
 
             if flag == 1:       
                 message = "The vaccine is now available for the week following: {} for PIN: {}\n{} \n\n".format(date, code, center_detail)
