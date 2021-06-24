@@ -1,8 +1,9 @@
-import json
 import requests
 import time
 from tkinter import *  
 from tkinter import messagebox  
+from dateutil.parser import parse
+import datetime
 	
 centers = {
     41255 : "Ballarpur RH",
@@ -13,6 +14,20 @@ centers = {
     #653002: "Kothari",
     #43129: "Palasgaon"
 }
+
+def is_date(string, fuzzy=False):
+    """
+    Return whether the string can be interpreted as a date.
+
+    :param string: str, string to check for date
+    :param fuzzy: bool, ignore unknown tokens in string if True
+    """
+    try: 
+        parse(string, fuzzy=fuzzy)
+        return True
+
+    except ValueError:
+        return False
 
 def handler(pincodes, date, agelimit):
     api_endpoint = "https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode={}&date={}"
@@ -82,12 +97,18 @@ def handler(pincodes, date, agelimit):
 
     if message:
         print(message)
+        """
         top = Tk()  
-        top.geometry("600x400")  
+        top.geometry("600x400") 
+        top.title("Vaccine check") 
         a = Label(top, text=message)
         a.pack()
+        top.lift()
         #top.withdraw()
         top.mainloop()  
+        """ 
+        messagebox.showinfo("Vaccine available", message)
+
         
 
 
@@ -95,9 +116,29 @@ def handler(pincodes, date, agelimit):
 pincodes = ["442701"]
 date = "24-06-2021"
 age_limit = 45
-
 # Time interval for checks in seconds
 interval = 3
+
+print("Enter date to check. For dd-mm-yyyy: ")
+try:
+    date = str(input())
+    if not is_date(date):
+        date = (datetime.date.today()).strftime("%d-%m-%Y")
+        raise ValueError
+except Exception as e:
+    print("No input received. Using tomorrow's date: " + date)
+
+print("Enter age limit. Either 18 or 45: ")
+try:
+    age_limit = int(input())
+except Exception as e:
+    print("No input received")
+
+print("Enter time interval to check in seconds: ")
+try:
+    interval = int(input())
+except Exception as e:
+    print("No input received")
 
 while True:
 	handler(pincodes, date, age_limit)

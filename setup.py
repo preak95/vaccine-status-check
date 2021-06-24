@@ -4,7 +4,7 @@ base = None
 
 executables = [Executable("vaccine-check.py", base=base)]
 
-packages = ["idna", "requests", "tkinter", "time"]
+packages = ["idna", "requests", "tkinter", "time", "dateutil", "datetime"]
 options = {
     'build_exe': {    
         'packages':packages,
