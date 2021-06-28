@@ -9,10 +9,8 @@ centers = {
     41255 : "Ballarpur RH",
     702005 : "2 Natyagruh Ballarpur 45 Above",
     41256 : "Ballarpur UPHC",
-    668001: "Natyagrah Ballarpur (18-44)"
-    #709873: "Visapur PHC",
-    #653002: "Kothari",
-    #43129: "Palasgaon"
+    668001: "Natyagrah Ballarpur (18-44)",
+    667993: "BMA Hall Ballarpur"
 }
 
 def is_date(string, fuzzy=False):
@@ -48,9 +46,15 @@ def handler(pincodes, date, agelimit):
             "Cache-Control": "cf-no-cache"
         }
         
+        res = ""
         # Get the details of vaccine availablity from the API
-        res = requests.get(api_endpoint.format(code, date), headers=headers)
-        #res = requests.get(api_endpoint.format(code, date))
+        try:
+            res = requests.get(api_endpoint.format(code, date), headers=headers)
+            #res = requests.get(api_endpoint.format(code, date))
+        except Exception as e:
+            print("An error occurred when trying to reach the Cowin endpoint: " + str(e))
+            print("Maybe, you're not connected to the internet?\n")
+            return
 
         try: 
             #print("API response for: " + str(code) + " was: {}".format(res.json()))
@@ -76,7 +80,8 @@ def handler(pincodes, date, agelimit):
                     session_count = 0
                     for session in center["sessions"]:
                         session_count += 1
-                        if session["available_capacity"] > 0 and session["min_age_limit"] == agelimit and session["date"] == date:
+                        #if session["available_capacity"] > 0 and session["min_age_limit"] == agelimit and session["date"] == date:
+                        if session["available_capacity"] > 0 and session["min_age_limit"] >= agelimit:
                             print("Current center: {}".format(center["name"]))
                             center_detail += "\n" + str(count) + ". {}".format(center["name"])
                             flag = 1
@@ -94,19 +99,10 @@ def handler(pincodes, date, agelimit):
 
             if flag == 1:     
                 message += "The vaccine is now available for the day: {} for PIN: {}\n{} \n\n".format(date, code, center_detail)
-
+        else:
+            print("No centers yet...")
     if message:
         print(message)
-        """
-        top = Tk()  
-        top.geometry("600x400") 
-        top.title("Vaccine check") 
-        a = Label(top, text=message)
-        a.pack()
-        top.lift()
-        #top.withdraw()
-        top.mainloop()  
-        """ 
         messagebox.showinfo("Vaccine available", message)
 
         
